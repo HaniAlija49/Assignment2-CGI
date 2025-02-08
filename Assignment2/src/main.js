@@ -1,24 +1,58 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+AFRAME.registerComponent("always-on-top", {
+  init: function () {
+    this.el.addEventListener("object3dset", () => {
+      if (this.el.getObject3D("mesh")) {
+        this.el.getObject3D("mesh").renderOrder = 9999;
+      }
+    });
+    if (this.el.getObject3D("mesh")) {
+      this.el.getObject3D("mesh").renderOrder = 9999;
+    }
+  }
+});
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+AFRAME.registerComponent("movement-constraint", {
+  schema: {
+    minX: { type: "number", default: -50 },
+    maxX: { type: "number", default: 50 },
+    minY: { type: "number", default: 0 },
+    maxY: { type: "number", default: 20 },
+    minZ: { type: "number", default: -50 },
+    maxZ: { type: "number", default: 50 }
+  },
+  tick: function () {
+    const pos = this.el.getAttribute("position");
+    const x = Math.min(Math.max(pos.x, this.data.minX), this.data.maxX);
+    const y = Math.min(Math.max(pos.y, this.data.minY), this.data.maxY);
+    const z = Math.min(Math.max(pos.z, this.data.minZ), this.data.maxZ);
+    this.el.setAttribute("position", { x, y, z });
+  }
+});
 
-setupCounter(document.querySelector('#counter'))
+AFRAME.registerComponent("add-classroom-items", {
+  init: function () {
+    const container = this.el;
+    const deskPositions = [
+      { x: -20, y: 0, z: 15 },
+      { x: 0, y: 0, z: 15 },
+      { x: 20, y: 0, z: 15 },
+      { x: -20, y: 0, z: 5 },
+      { x: 0, y: 0, z: 5 },
+      { x: 20, y: 0, z: 5 },
+      { x: -20, y: 0, z: -5 },
+      { x: 0, y: 0, z: -5 },
+      { x: 20, y: 0, z: -5 },
+      { x: -20, y: 0, z: -15 },
+      { x: 0, y: 0, z: -15 },
+      { x: 20, y: 0, z: -15 }
+    ];
+    deskPositions.forEach((pos) => {
+      const desk = document.createElement("a-entity");
+      desk.setAttribute("obj-model", "obj: #deskModel");
+      desk.setAttribute("position", `${pos.x} ${pos.y} ${pos.z}`);
+      desk.setAttribute("scale", "0.8 0.8 0.8");
+      desk.setAttribute("material", "color: #8B4513; roughness: 1; metalness: 0");
+      container.appendChild(desk);
+    });
+  }
+});
